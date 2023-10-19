@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react'
 import './App.css'
+import { Send } from '@mui/icons-material'
 
 export type Campaign = {
   information: {
@@ -124,6 +125,45 @@ function App() {
     []
   )
 
+  const handleAddSubCampaign = useCallback(() => {
+    console.log('add')
+    // setData((prev: Campaign) => ({
+    //   ...prev,
+    //   subCampaigns: [
+    //     ...prev?.subCampaigns,
+    //     {
+    //       name: 'Chiến dịch con',
+    //       status: true,
+    //       ads: [
+    //         {
+    //           name: 'Quảng cáo',
+    //           quantity: 0,
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // }))
+    setData((prev: any) => {
+      console.log(prev)
+      return {
+        ...prev,
+        subCampaigns: [
+          ...prev?.subCampaigns,
+          {
+            name: 'Chiến dịch con',
+            status: true,
+            ads: [
+              {
+                name: 'Quảng cáo',
+                quantity: 0,
+              },
+            ],
+          },
+        ],
+      }
+    })
+  }, [])
+
   console.log(data)
 
   return (
@@ -138,6 +178,7 @@ function App() {
         }}
         variant="contained"
         onClick={onClick}
+        endIcon={<Send />}
       >
         Submit
       </Button>
@@ -169,7 +210,10 @@ function App() {
           />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}>
-          <SubCampaigns />
+          <SubCampaigns
+            subCampaigns={data?.subCampaigns}
+            onAddSubCampaign={handleAddSubCampaign}
+          />
         </CustomTabPanel>
       </Box>
     </div>

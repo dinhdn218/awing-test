@@ -1,5 +1,5 @@
 import { Box, Card, Typography } from '@mui/material'
-import React from 'react'
+import React, { BaseSyntheticEvent } from 'react'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 type Props = {
@@ -18,8 +18,8 @@ const SubCampaignCard = (props: Props) => {
         padding: '10px 20px',
         fontSize: '20px',
         fontWeight: '500',
-        boxShadow: '2',
         cursor: 'pointer',
+        textAlign: 'center',
       }}
       variant="outlined"
     >
