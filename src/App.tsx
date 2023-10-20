@@ -11,27 +11,7 @@ import React, {
 import './App.css'
 import { Send } from '@mui/icons-material'
 
-export type Campaign = {
-  information: {
-    name: string
-    describe?: string
-  }
-
-  subCampaigns: [
-    {
-      name: string
-      status: boolean
-      ads: [
-        {
-          name: string
-          quantity: number
-        }
-      ]
-    }
-  ]
-}
-
-const initData: Campaign = {
+const initData: CampaignType = {
   information: {
     name: '',
     describe: '',
@@ -53,34 +33,11 @@ const initData: Campaign = {
 
 function App() {
   const [value, setValue] = useState<number>(1)
-  const [data, setData] = useState<Campaign>(initData)
+  const [data, setData] = useState<CampaignType>(initData)
+
   const [error, setError] = useState<any>({
     campaignName: '',
   })
-
-  const onSubmit = (event: BaseSyntheticEvent) => {
-    // event.preventDefault()
-    console.log({ event })
-    // const result: Campaign = {
-    //   information: {
-    //     name: data.campaignName,
-    //     describe: data.campaignDescription,
-    //   },
-    //   subCampaigns: [
-    //     {
-    //       name: '',
-    //       status: true,
-    //       ads: [
-    //         {
-    //           name: 'string',
-    //           quantity: 1,
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // }
-    // alert('Thêm thành công chiến dịch ' + JSON.stringify(result))
-  }
 
   const handleChangeTab = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
@@ -100,7 +57,7 @@ function App() {
 
   const handleChangeCampaignInformation = useCallback(
     (name: string, value: string) => {
-      setData((prev: Campaign) => ({
+      setData((prev: CampaignType) => ({
         ...prev,
         information: {
           ...prev.information,
@@ -126,35 +83,17 @@ function App() {
   )
 
   const handleAddSubCampaign = useCallback(() => {
-    console.log('add')
-    // setData((prev: Campaign) => ({
-    //   ...prev,
-    //   subCampaigns: [
-    //     ...prev?.subCampaigns,
-    //     {
-    //       name: 'Chiến dịch con',
-    //       status: true,
-    //       ads: [
-    //         {
-    //           name: 'Quảng cáo',
-    //           quantity: 0,
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // }))
-    setData((prev: any) => {
-      console.log(prev)
+    setData((prev: CampaignType) => {
       return {
         ...prev,
         subCampaigns: [
           ...prev?.subCampaigns,
           {
-            name: 'Chiến dịch con',
+            name: `Chiến dịch con ${prev.subCampaigns.length + 1}`,
             status: true,
             ads: [
               {
-                name: 'Quảng cáo',
+                name: 'Quảng cáo 1',
                 quantity: 0,
               },
             ],
@@ -165,6 +104,30 @@ function App() {
   }, [])
 
   console.log(data)
+
+  const handleChangeSubCampaign = useCallback(
+    (name: string, index: number, value: string | boolean) => {
+      setData((prev: CampaignType) => {
+        const subCampaignChanged = prev.subCampaigns.find(
+          (_subCampaign: SubCampaignType, idx: number) => idx === index
+        )
+        if (subCampaignChanged) {
+          const newSubCampaigns = prev.subCampaigns.fill(
+            { ...subCampaignChanged, [name]: value },
+            index,
+            index + 1
+          )
+          return {
+            ...prev,
+            subCampaigns: newSubCampaigns,
+          }
+        } else {
+          return prev
+        }
+      })
+    },
+    []
+  )
 
   return (
     <div className="App">
@@ -213,6 +176,7 @@ function App() {
           <SubCampaigns
             subCampaigns={data?.subCampaigns}
             onAddSubCampaign={handleAddSubCampaign}
+            onChange={handleChangeSubCampaign}
           />
         </CustomTabPanel>
       </Box>

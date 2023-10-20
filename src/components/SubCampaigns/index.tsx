@@ -8,20 +8,32 @@ import {
 } from '@mui/material'
 import AdsList from 'components/AdsList'
 import SubCampaignCard from 'components/SubCampaignCard'
+import { useCallback, useEffect, useState } from 'react'
 
 type Props = {
-  subCampaigns: any
+  subCampaigns: SubCampaignType[]
   onAddSubCampaign: () => void
+  onChange: (name: string, index: number, value: string | boolean) => void
 }
 
-const SubCampaigns = ({ subCampaigns, onAddSubCampaign }: Props) => {
-  // const handleAddSubCampaign = useCallback(() => {
-  //   setSubCampaigns((prev: any) => {
-  //     return [...prev, ...initData]
-  //   })
-  // }, [])
+const SubCampaigns = ({ subCampaigns, onAddSubCampaign, onChange }: Props) => {
+  const [currentIndex, setCurrentIndex] = useState<number>(0)
+  const [currentSubCampaign, setCurrentSubCampaign] = useState<SubCampaignType>(
+    subCampaigns?.[0]
+  )
 
-  console.log(subCampaigns)
+  useEffect(() => {
+    const currentSubCampaign = subCampaigns?.find(
+      (_subCampaign: SubCampaignType, idx: number) => idx === currentIndex
+    )
+    if (currentSubCampaign) {
+      setCurrentSubCampaign(currentSubCampaign)
+    }
+  }, [currentIndex, subCampaigns])
+
+  const handleClickSubCampaignCard = useCallback((index: number) => {
+    setCurrentIndex(index)
+  }, [])
 
   return (
     <div>
@@ -29,7 +41,10 @@ const SubCampaigns = ({ subCampaigns, onAddSubCampaign }: Props) => {
         sx={{ display: 'flex', marginLeft: 'auto', marginBottom: '30px' }}
         variant="contained"
         endIcon={<Add />}
-        onClick={onAddSubCampaign}
+        onClick={() => {
+          setCurrentIndex(subCampaigns?.length)
+          onAddSubCampaign()
+        }}
       >
         Thêm chiến dịch con
       </Button>
@@ -41,17 +56,15 @@ const SubCampaigns = ({ subCampaigns, onAddSubCampaign }: Props) => {
           marginBottom: '30px',
         }}
       >
-        {subCampaigns?.map((subCampaign: any, index: number) => {
+        {subCampaigns?.map((subCampaign: SubCampaignType, index: number) => {
           return (
             <SubCampaignCard
               key={index}
-              name={
-                index !== 0
-                  ? `${subCampaign?.name} ${index + 1}`
-                  : subCampaign?.name
-              }
+              name={subCampaign?.name}
               countOfAds={19}
               status={subCampaign?.status}
+              active={currentIndex === index}
+              onClickSubCampaignCard={() => handleClickSubCampaignCard(index)}
             />
           )
         })}
@@ -69,6 +82,14 @@ const SubCampaigns = ({ subCampaigns, onAddSubCampaign }: Props) => {
           required
           variant="standard"
           sx={{ width: '70%' }}
+          value={currentSubCampaign?.name}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setCurrentSubCampaign((prev: SubCampaignType) => ({
+              ...prev,
+              name: event.target.value,
+            }))
+            onChange('name', currentIndex, event.target.value)
+          }}
           // helperText={error}
           // error={error === '' ? false : true}
           // value={campaignInformation?.name}
@@ -77,11 +98,22 @@ const SubCampaigns = ({ subCampaigns, onAddSubCampaign }: Props) => {
           // }}
         />
         <FormControlLabel
-          control={<Checkbox defaultChecked />}
+          control={
+            <Checkbox
+              checked={currentSubCampaign?.status}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setCurrentSubCampaign((prev: SubCampaignType) => ({
+                  ...prev,
+                  status: event.target.checked,
+                }))
+                onChange('status', currentIndex, event.target.checked)
+              }}
+            />
+          }
           label="Đang hoạt động"
         />
       </Box>
-      <AdsList />
+      <AdsList adsList={currentSubCampaign?.ads} />
     </div>
   )
 }

@@ -1,10 +1,7 @@
 import { Box, Stack, TextField } from '@mui/material'
 
 type Props = {
-  campaignInformation: {
-    name: string
-    describe?: string
-  }
+  campaignInformation: InformationType
   error: string
   onChange: (name: string, value: string) => void
 }

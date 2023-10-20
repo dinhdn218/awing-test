@@ -6,10 +6,12 @@ type Props = {
   name: string
   countOfAds: number
   status: boolean
+  active: boolean
+  onClickSubCampaignCard: () => void
 }
 
 const SubCampaignCard = (props: Props) => {
-  const { name, countOfAds, status } = props
+  const { name, countOfAds, status, active, onClickSubCampaignCard } = props
   return (
     <Card
       sx={{
@@ -20,8 +22,11 @@ const SubCampaignCard = (props: Props) => {
         fontWeight: '500',
         cursor: 'pointer',
         textAlign: 'center',
+        borderColor: active ? '#1976d2' : '',
+        borderWidth: '2px',
       }}
       variant="outlined"
+      onClick={onClickSubCampaignCard}
     >
       <Box
         sx={{
