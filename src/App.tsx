@@ -1,15 +1,10 @@
+import { Send } from '@mui/icons-material'
 import { Box, Button, Tab, Tabs } from '@mui/material'
 import CustomTabPanel from 'components/CustomTabPanel'
 import Information from 'components/Information'
 import SubCampaigns from 'components/SubCampaigns'
-import React, {
-  BaseSyntheticEvent,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import React, { useCallback, useState } from 'react'
 import './App.css'
-import { Send } from '@mui/icons-material'
 
 const initData: CampaignType = {
   information: {
@@ -34,9 +29,6 @@ const initData: CampaignType = {
 function App() {
   const [value, setValue] = useState<number>(1)
   const [data, setData] = useState<CampaignType>(initData)
-  const [currentSubCampaign, setCurrentSubCampaign] = useState<SubCampaignType>(
-    data?.subCampaigns?.[0]
-  )
   const [error, setError] = useState<any>({
     campaignName: '',
   })
@@ -105,6 +97,32 @@ function App() {
     })
   }, [])
 
+  console.log(data)
+
+  const handleChangeSubCampaign = useCallback(
+    (name: string, index: number, value: string | boolean) => {
+      setData((prev: CampaignType) => {
+        const subCampaignChanged = prev.subCampaigns.find(
+          (_subCampaign: SubCampaignType, idx: number) => idx === index
+        )
+        if (subCampaignChanged) {
+          const newSubCampaigns = prev.subCampaigns.fill(
+            { ...subCampaignChanged, [name]: value },
+            index,
+            index + 1
+          )
+          return {
+            ...prev,
+            subCampaigns: newSubCampaigns,
+          }
+        } else {
+          return prev
+        }
+      })
+    },
+    []
+  )
+
   return (
     <div className="App">
       <Button
@@ -152,7 +170,7 @@ function App() {
           <SubCampaigns
             subCampaigns={data?.subCampaigns}
             onAddSubCampaign={handleAddSubCampaign}
-            currentSubCampaign={currentSubCampaign}
+            onChange={handleChangeSubCampaign}
           />
         </CustomTabPanel>
       </Box>

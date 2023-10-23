@@ -8,20 +8,28 @@ import {
 } from '@mui/material'
 import AdsList from 'components/AdsList'
 import SubCampaignCard from 'components/SubCampaignCard'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 type Props = {
   subCampaigns: SubCampaignType[]
   onAddSubCampaign: () => void
-  currentSubCampaign: SubCampaignType
+  onChange: (name: string, index: number, value: string | boolean) => void
 }
 
-const SubCampaigns = ({
-  subCampaigns,
-  onAddSubCampaign,
-  currentSubCampaign,
-}: Props) => {
+const SubCampaigns = ({ subCampaigns, onAddSubCampaign, onChange }: Props) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0)
+  const [currentSubCampaign, setCurrentSubCampaign] = useState<SubCampaignType>(
+    subCampaigns?.[0]
+  )
+
+  useEffect(() => {
+    const currentSubCampaign = subCampaigns?.find(
+      (_subCampaign: SubCampaignType, idx: number) => idx === currentIndex
+    )
+    if (currentSubCampaign) {
+      setCurrentSubCampaign(currentSubCampaign)
+    }
+  }, [currentIndex, subCampaigns])
 
   const handleClickSubCampaignCard = useCallback((index: number) => {
     setCurrentIndex(index)
@@ -75,6 +83,13 @@ const SubCampaigns = ({
           variant="standard"
           sx={{ width: '70%' }}
           value={currentSubCampaign?.name}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setCurrentSubCampaign((prev: SubCampaignType) => ({
+              ...prev,
+              name: event.target.value,
+            }))
+            onChange('name', currentIndex, event.target.value)
+          }}
           // helperText={error}
           // error={error === '' ? false : true}
           // value={campaignInformation?.name}
@@ -84,7 +99,16 @@ const SubCampaigns = ({
         />
         <FormControlLabel
           control={
-            <Checkbox defaultChecked checked={currentSubCampaign?.status} />
+            <Checkbox
+              checked={currentSubCampaign?.status}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                setCurrentSubCampaign((prev: SubCampaignType) => ({
+                  ...prev,
+                  status: event.target.checked,
+                }))
+                onChange('status', currentIndex, event.target.checked)
+              }}
+            />
           }
           label="Đang hoạt động"
         />
