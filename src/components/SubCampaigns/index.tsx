@@ -13,23 +13,21 @@ import { useCallback, useEffect, useState } from 'react'
 type Props = {
   subCampaigns: SubCampaignType[]
   onAddSubCampaign: () => void
+  onAddAds: (subCampaignIndex: number) => void
   onChange: (name: string, index: number, value: string | boolean) => void
+  onChangeAds: (name: string, index: number, value: string | boolean) => void
 }
 
-const SubCampaigns = ({ subCampaigns, onAddSubCampaign, onChange }: Props) => {
+const SubCampaigns = ({
+  subCampaigns,
+  onAddSubCampaign,
+  onChange,
+  onAddAds,
+  onChangeAds,
+}: Props) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0)
-  const [currentSubCampaign, setCurrentSubCampaign] = useState<SubCampaignType>(
-    subCampaigns?.[0]
-  )
 
-  useEffect(() => {
-    const currentSubCampaign = subCampaigns?.find(
-      (_subCampaign: SubCampaignType, idx: number) => idx === currentIndex
-    )
-    if (currentSubCampaign) {
-      setCurrentSubCampaign(currentSubCampaign)
-    }
-  }, [currentIndex, subCampaigns])
+  console.log({ subCampaigns })
 
   const handleClickSubCampaignCard = useCallback((index: number) => {
     setCurrentIndex(index)
@@ -57,11 +55,19 @@ const SubCampaigns = ({ subCampaigns, onAddSubCampaign, onChange }: Props) => {
         }}
       >
         {subCampaigns?.map((subCampaign: SubCampaignType, index: number) => {
+          const totalAds = subCampaign?.ads?.reduce(
+            (accumulator, currentValue) => {
+              const result = accumulator + currentValue?.quantity
+              return result
+            },
+            0
+          )
+
           return (
             <SubCampaignCard
               key={index}
               name={subCampaign?.name}
-              countOfAds={19}
+              countOfAds={totalAds}
               status={subCampaign?.status}
               active={currentIndex === index}
               onClickSubCampaignCard={() => handleClickSubCampaignCard(index)}
@@ -82,12 +88,8 @@ const SubCampaigns = ({ subCampaigns, onAddSubCampaign, onChange }: Props) => {
           required
           variant="standard"
           sx={{ width: '70%' }}
-          value={currentSubCampaign?.name}
+          value={subCampaigns?.[currentIndex]?.name}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setCurrentSubCampaign((prev: SubCampaignType) => ({
-              ...prev,
-              name: event.target.value,
-            }))
             onChange('name', currentIndex, event.target.value)
           }}
           // helperText={error}
@@ -100,12 +102,8 @@ const SubCampaigns = ({ subCampaigns, onAddSubCampaign, onChange }: Props) => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={currentSubCampaign?.status}
+              checked={subCampaigns?.[currentIndex]?.status}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setCurrentSubCampaign((prev: SubCampaignType) => ({
-                  ...prev,
-                  status: event.target.checked,
-                }))
                 onChange('status', currentIndex, event.target.checked)
               }}
             />
@@ -113,7 +111,12 @@ const SubCampaigns = ({ subCampaigns, onAddSubCampaign, onChange }: Props) => {
           label="Đang hoạt động"
         />
       </Box>
-      <AdsList adsList={currentSubCampaign?.ads} />
+      <AdsList
+        adsList={subCampaigns?.[currentIndex]?.ads}
+        onAddAds={onAddAds}
+        onChangeAds={onChangeAds}
+        currentSubCampaignIndex={currentIndex}
+      />
     </div>
   )
 }

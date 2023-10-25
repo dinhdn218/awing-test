@@ -103,7 +103,7 @@ function App() {
     })
   }, [])
 
-  console.log(data)
+  // console.log(data)
 
   const handleChangeSubCampaign = useCallback(
     (name: string, index: number, value: string | boolean) => {
@@ -128,6 +128,40 @@ function App() {
     },
     []
   )
+
+  const handleAddAds = useCallback((subCampaignIndex: number) => {
+    setData((prev: CampaignType) => {
+      const subCampaignChanged = prev.subCampaigns.find(
+        (_subCampaign: SubCampaignType, idx: number) => idx === subCampaignIndex
+      )
+      if (subCampaignChanged) {
+        const newSubCampaigns = prev.subCampaigns.fill(
+          {
+            ...subCampaignChanged,
+            ads: [
+              ...prev.subCampaigns?.[subCampaignIndex].ads,
+              {
+                name: `Quảng cáo ${
+                  prev.subCampaigns?.[subCampaignIndex].ads.length + 1
+                }`,
+                quantity: 0,
+              },
+            ],
+          },
+          subCampaignIndex,
+          subCampaignIndex + 1
+        )
+        return {
+          ...prev,
+          subCampaigns: newSubCampaigns,
+        }
+      } else {
+        return prev
+      }
+    })
+  }, [])
+
+  const handleChangeAds = useCallback(() => {}, [])
 
   return (
     <div className="App">
@@ -177,6 +211,8 @@ function App() {
             subCampaigns={data?.subCampaigns}
             onAddSubCampaign={handleAddSubCampaign}
             onChange={handleChangeSubCampaign}
+            onAddAds={handleAddAds}
+            onChangeAds={handleChangeAds}
           />
         </CustomTabPanel>
       </Box>
