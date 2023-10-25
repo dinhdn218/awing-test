@@ -1,15 +1,10 @@
+import { Send } from '@mui/icons-material'
 import { Box, Button, Tab, Tabs } from '@mui/material'
 import CustomTabPanel from 'components/CustomTabPanel'
 import Information from 'components/Information'
 import SubCampaigns from 'components/SubCampaigns'
-import React, {
-  BaseSyntheticEvent,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import React, { useCallback, useState } from 'react'
 import './App.css'
-import { Send } from '@mui/icons-material'
 
 const initData: CampaignType = {
   information: {
@@ -34,7 +29,6 @@ const initData: CampaignType = {
 function App() {
   const [value, setValue] = useState<number>(1)
   const [data, setData] = useState<CampaignType>(initData)
-
   const [error, setError] = useState<any>({
     campaignName: '',
   })
