@@ -155,7 +155,80 @@ function App() {
     })
   }, [])
 
-  const handleChangeAds = useCallback(() => {}, [])
+  const handleChangeAds = useCallback(
+    (
+      name: string,
+      subCampaignIndex: number,
+      adsIndex: number,
+      value: string | number,
+      event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      if (name === 'quantity' && String(value).match(/[^0-9]/)) {
+        return
+      }
+      setData((prev: CampaignType) => {
+        const subCampaignChanged = prev.subCampaigns.find(
+          (_subCampaign: SubCampaignType, idx: number) =>
+            idx === subCampaignIndex
+        )
+        if (subCampaignChanged) {
+          const adsChanged = subCampaignChanged?.ads?.find(
+            (ads: AdsType, idx: number) => idx === adsIndex
+          )
+
+          if (adsChanged) {
+            const newAds = subCampaignChanged?.ads?.fill(
+              { ...adsChanged, [name]: value },
+              adsIndex,
+              adsIndex + 1
+            )
+            const newSubCampaigns = prev?.subCampaigns?.fill(
+              { ...subCampaignChanged, ads: newAds },
+              subCampaignIndex,
+              subCampaignIndex + 1
+            )
+
+            return {
+              ...prev,
+              subCampaigns: newSubCampaigns,
+            }
+          }
+        }
+
+        return prev
+      })
+    },
+    []
+  )
+
+  const handleDeleteAds = useCallback(
+    (subCampaignIndex: number, adsIndex: number[]) => {
+      setData((prev: CampaignType) => {
+        const subCampaignChanged = prev.subCampaigns.find(
+          (_subCampaign: SubCampaignType, idx: number) =>
+            idx === subCampaignIndex
+        )
+        if (subCampaignChanged) {
+          const newAds = subCampaignChanged?.ads?.filter(
+            (_ads: AdsType, idx: number) => !adsIndex?.includes(idx)
+          )
+          const newSubCampaigns = prev?.subCampaigns?.fill(
+            { ...subCampaignChanged, ads: newAds },
+            subCampaignIndex,
+            subCampaignIndex + 1
+          )
+
+          return {
+            ...prev,
+            subCampaigns: newSubCampaigns,
+          }
+        }
+
+        return prev
+      })
+    },
+    []
+  )
 
   return (
     <div className="App">
@@ -204,9 +277,10 @@ function App() {
           <SubCampaigns
             subCampaigns={data?.subCampaigns}
             onAddSubCampaign={handleAddSubCampaign}
-            onChange={handleChangeSubCampaign}
+            onChangeSubCampaign={handleChangeSubCampaign}
             onAddAds={handleAddAds}
             onChangeAds={handleChangeAds}
+            onDelete={handleDeleteAds}
           />
         </CustomTabPanel>
       </Box>

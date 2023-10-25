@@ -8,26 +8,36 @@ import {
 } from '@mui/material'
 import AdsList from 'components/AdsList'
 import SubCampaignCard from 'components/SubCampaignCard'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 type Props = {
   subCampaigns: SubCampaignType[]
   onAddSubCampaign: () => void
   onAddAds: (subCampaignIndex: number) => void
-  onChange: (name: string, index: number, value: string | boolean) => void
-  onChangeAds: (name: string, index: number, value: string | boolean) => void
+  onChangeSubCampaign: (
+    name: string,
+    index: number,
+    value: string | boolean
+  ) => void
+  onChangeAds: (
+    name: string,
+    subCampaignIndex: number,
+    adsIndex: number,
+    value: string | number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void
+  onDelete: (subCampaignIndex: number, adsIndex: number[]) => void
 }
 
 const SubCampaigns = ({
   subCampaigns,
   onAddSubCampaign,
-  onChange,
+  onChangeSubCampaign,
   onAddAds,
   onChangeAds,
+  onDelete,
 }: Props) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0)
-
-  console.log({ subCampaigns })
 
   const handleClickSubCampaignCard = useCallback((index: number) => {
     setCurrentIndex(index)
@@ -56,8 +66,11 @@ const SubCampaigns = ({
       >
         {subCampaigns?.map((subCampaign: SubCampaignType, index: number) => {
           const totalAds = subCampaign?.ads?.reduce(
-            (accumulator, currentValue) => {
-              const result = accumulator + currentValue?.quantity
+            (accumulator: number, currentValue: AdsType) => {
+              if (Number.isNaN(Number(currentValue?.quantity))) {
+                return 0
+              }
+              const result = accumulator + Number(currentValue?.quantity)
               return result
             },
             0
@@ -90,7 +103,7 @@ const SubCampaigns = ({
           sx={{ width: '70%' }}
           value={subCampaigns?.[currentIndex]?.name}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            onChange('name', currentIndex, event.target.value)
+            onChangeSubCampaign('name', currentIndex, event.target.value)
           }}
           // helperText={error}
           // error={error === '' ? false : true}
@@ -104,7 +117,11 @@ const SubCampaigns = ({
             <Checkbox
               checked={subCampaigns?.[currentIndex]?.status}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                onChange('status', currentIndex, event.target.checked)
+                onChangeSubCampaign(
+                  'status',
+                  currentIndex,
+                  event.target.checked
+                )
               }}
             />
           }
@@ -116,6 +133,7 @@ const SubCampaigns = ({
         onAddAds={onAddAds}
         onChangeAds={onChangeAds}
         currentSubCampaignIndex={currentIndex}
+        onDelete={onDelete}
       />
     </div>
   )

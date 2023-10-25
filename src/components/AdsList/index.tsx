@@ -17,7 +17,7 @@ import {
   Typography,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 
 // Table head
 interface Data {
@@ -91,10 +91,21 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 interface EnhancedTableToolbarProps {
   numSelected: number
   onAddAds: () => void
+  currentSubCampaignIndex: number
+  selected: number[]
+  onDelete: (subCampaignIndex: number, adsIndex: number[]) => void
+  callBackResetSelected: () => void
 }
 
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected, onAddAds } = props
+  const {
+    numSelected,
+    onAddAds,
+    currentSubCampaignIndex,
+    selected,
+    onDelete,
+    callBackResetSelected,
+  } = props
 
   return (
     <Toolbar
@@ -130,8 +141,13 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         </Typography>
       )}
       {numSelected > 0 ? (
-        <Tooltip title="Delete All">
-          <IconButton>
+        <Tooltip title="Xoá bản ghi được chọn">
+          <IconButton
+            onClick={() => {
+              onDelete(currentSubCampaignIndex, selected)
+              callBackResetSelected()
+            }}
+          >
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -152,8 +168,15 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
 type Props = {
   adsList: AdsType[]
   onAddAds: (currentSubCampaignIndex: number) => void
-  onChangeAds: (name: string, index: number, value: string | boolean) => void
+  onChangeAds: (
+    name: string,
+    subCampaignIndex: number,
+    adsIndex: number,
+    value: string | number,
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => void
   currentSubCampaignIndex: number
+  onDelete: (subCampaignIndex: number, adsIndex: number[]) => void
 }
 
 const AdsList = ({
@@ -161,9 +184,11 @@ const AdsList = ({
   onAddAds,
   onChangeAds,
   currentSubCampaignIndex,
+  onDelete,
 }: Props) => {
-  const [selected, setSelected] = React.useState<readonly number[]>([])
-  console.log({ adsList })
+  const [selected, setSelected] = React.useState<number[]>([])
+  const [disabledDeleleRow, setDisabledDeleleRow] =
+    React.useState<boolean>(false)
 
   const handleSelectAllClick = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,9 +202,17 @@ const AdsList = ({
     [adsList]
   )
 
-  const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
+  const callBackResetSelected = useCallback(() => {
+    setSelected([])
+  }, [])
+
+  useEffect(() => {
+    setDisabledDeleleRow(selected?.length > 0)
+  }, [selected?.length])
+
+  const handleClick = (event: React.MouseEvent<unknown> | any, id: number) => {
     const selectedIndex = selected.indexOf(id)
-    let newSelected: readonly number[] = []
+    let newSelected: number[] = []
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id)
@@ -209,6 +242,10 @@ const AdsList = ({
       <EnhancedTableToolbar
         numSelected={selected.length}
         onAddAds={handleAddAds}
+        currentSubCampaignIndex={currentSubCampaignIndex}
+        selected={selected}
+        onDelete={onDelete}
+        callBackResetSelected={callBackResetSelected}
       />
       <TableContainer>
         <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle">
@@ -248,20 +285,48 @@ const AdsList = ({
                       variant="standard"
                       sx={{ width: '100%' }}
                       value={ads?.name}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        onChangeAds(
+                          'name',
+                          currentSubCampaignIndex,
+                          index,
+                          event.target.value,
+                          event
+                        )
+                      }}
                     />
                   </TableCell>
                   <TableCell align="left">
                     <TextField
-                      // inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+                      inputProps={{ inputMode: 'numeric' }}
                       required
                       variant="standard"
                       sx={{ width: '100%' }}
                       value={ads?.quantity}
+                      onChange={(
+                        event: React.ChangeEvent<HTMLInputElement>
+                      ) => {
+                        onChangeAds(
+                          'quantity',
+                          currentSubCampaignIndex,
+                          index,
+                          event.target.value,
+                          event
+                        )
+                      }}
                     />
                   </TableCell>
                   <TableCell align="center">
-                    <Tooltip title="Delete">
-                      <IconButton>
+                    <Tooltip title="Xoá">
+                      <IconButton
+                        disabled={disabledDeleleRow}
+                        onClick={() => {
+                          setSelected([])
+                          onDelete(currentSubCampaignIndex, [index])
+                        }}
+                      >
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
