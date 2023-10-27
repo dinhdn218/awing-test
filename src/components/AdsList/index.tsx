@@ -296,6 +296,7 @@ const AdsList = ({
                           event
                         )
                       }}
+                      error={ads?.name?.trim() === '' ? true : false}
                     />
                   </TableCell>
                   <TableCell align="left">
@@ -316,6 +317,11 @@ const AdsList = ({
                           event
                         )
                       }}
+                      error={
+                        !ads?.quantity || Number(ads?.quantity) === 0
+                          ? true
+                          : false
+                      }
                     />
                   </TableCell>
                   <TableCell align="center">

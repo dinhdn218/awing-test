@@ -76,6 +76,11 @@ const SubCampaigns = ({
             0
           )
 
+          const isHaveErrorInAdsList = subCampaign?.ads?.some(
+            (ads: AdsType) =>
+              ads?.name?.trim() === '' || !ads?.quantity || ads?.quantity === 0
+          )
+
           return (
             <SubCampaignCard
               key={index}
@@ -84,6 +89,7 @@ const SubCampaigns = ({
               status={subCampaign?.status}
               active={currentIndex === index}
               onClickSubCampaignCard={() => handleClickSubCampaignCard(index)}
+              isHaveErrorInAdsList={isHaveErrorInAdsList}
             />
           )
         })}
@@ -105,12 +111,14 @@ const SubCampaigns = ({
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             onChangeSubCampaign('name', currentIndex, event.target.value)
           }}
-          // helperText={error}
-          // error={error === '' ? false : true}
-          // value={campaignInformation?.name}
-          // onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-          //   onChange('name', event.target.value)
-          // }}
+          error={
+            subCampaigns?.[currentIndex]?.name?.trim() === '' ? true : false
+          }
+          helperText={
+            subCampaigns?.[currentIndex]?.name?.trim() === ''
+              ? 'Không được để trống'
+              : ''
+          }
         />
         <FormControlLabel
           control={

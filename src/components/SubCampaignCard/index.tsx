@@ -1,6 +1,5 @@
-import { Box, Card, Typography } from '@mui/material'
-import React, { BaseSyntheticEvent } from 'react'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { Box, Card } from '@mui/material'
 
 type Props = {
   name: string
@@ -8,10 +7,19 @@ type Props = {
   status: boolean
   active: boolean
   onClickSubCampaignCard: () => void
+  isHaveErrorInAdsList: boolean
 }
 
 const SubCampaignCard = (props: Props) => {
-  const { name, countOfAds, status, active, onClickSubCampaignCard } = props
+  const {
+    name,
+    countOfAds,
+    status,
+    active,
+    onClickSubCampaignCard,
+    isHaveErrorInAdsList,
+  } = props
+
   return (
     <Card
       sx={{
@@ -36,7 +44,18 @@ const SubCampaignCard = (props: Props) => {
           gap: '4px',
         }}
       >
-        <p style={{ marginTop: '0px', marginBottom: '0px' }}>{name}</p>
+        <p
+          style={{
+            marginTop: '0px',
+            marginBottom: '0px',
+            color:
+              name?.trim() === '' || countOfAds === 0 || isHaveErrorInAdsList
+                ? 'red'
+                : '',
+          }}
+        >
+          {name}
+        </p>
         <CheckCircleIcon sx={{ color: status ? 'green' : 'gray' }} />
       </Box>
       <p>{countOfAds}</p>

@@ -3,7 +3,7 @@ import { Box, Button, Tab, Tabs } from '@mui/material'
 import CustomTabPanel from 'components/CustomTabPanel'
 import Information from 'components/Information'
 import SubCampaigns from 'components/SubCampaigns'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import './App.css'
 
 const initData: CampaignType = {
@@ -29,25 +29,35 @@ const initData: CampaignType = {
 function App() {
   const [value, setValue] = useState<number>(1)
   const [data, setData] = useState<CampaignType>(initData)
-  const [error, setError] = useState<any>({
-    campaignName: '',
-  })
+  const [error, setError] = useState<string>('')
 
   const handleChangeTab = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
   }
 
+  const isError = useMemo(() => {
+    const isErrorCampaignName = data?.information?.name?.trim() === ''
+    const isErrorSubCampaignName = data?.subCampaigns?.some(
+      (subCampaign: SubCampaignType) =>
+        subCampaign?.name?.trim() === '' ||
+        subCampaign?.ads?.some(
+          (ads: AdsType) =>
+            ads?.name?.trim() === '' || !ads?.quantity || ads?.quantity === 0
+        )
+    )
+    return isErrorCampaignName || isErrorSubCampaignName
+  }, [data])
+
   const onClick = useCallback(() => {
     if (data?.information?.name?.trim() === '') {
-      setError((prev: any) => ({
-        ...prev,
-        campaignName: 'Không được để trống!!!',
-      }))
-      alert('Vui lòng điền đúng và đầy đủ thông tin!!')
+      setError('Không được để trống')
+    }
+    if (isError) {
+      alert('Vui lòng điền đúng và đầy đủ thông tin!!!')
       return
     }
     alert('Thêm thành công chiến dịch ' + JSON.stringify(data))
-  }, [data])
+  }, [data, isError])
 
   const handleChangeCampaignInformation = useCallback(
     (name: string, value: string) => {
@@ -61,15 +71,9 @@ function App() {
 
       if (name === 'name') {
         if (value?.trim() !== '') {
-          setError((prev: any) => ({
-            ...prev,
-            campaignName: '',
-          }))
+          setError('')
         } else {
-          setError((prev: any) => ({
-            ...prev,
-            campaignName: 'Không được để trống!!!',
-          }))
+          setError('Không được để trống')
         }
       }
     },
@@ -96,8 +100,6 @@ function App() {
       }
     })
   }, [])
-
-  // console.log(data)
 
   const handleChangeSubCampaign = useCallback(
     (name: string, index: number, value: string | boolean) => {
@@ -269,7 +271,7 @@ function App() {
         <CustomTabPanel value={value} index={1}>
           <Information
             campaignInformation={data?.information}
-            error={error?.campaignName}
+            error={error}
             onChange={handleChangeCampaignInformation}
           />
         </CustomTabPanel>
